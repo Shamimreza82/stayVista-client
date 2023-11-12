@@ -9,7 +9,7 @@ const Category = () => {
 
     const [params, setParams] =useSearchParams()
     const category = params.get('category')
-    console.log(category)
+    console.log(category) 
 
     return (
         <Container>
