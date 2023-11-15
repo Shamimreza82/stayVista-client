@@ -1,7 +1,71 @@
 import { Link } from 'react-router-dom'
 import { FcGoogle } from 'react-icons/fc'
+import { useForm } from 'react-hook-form'
+import { imageUplode } from '../../api/utils'
+import useAuth from '../../hooks/useAuth'
+import { saveUser } from '../../api/auth'
+
+
+
+
 
 const SignUp = () => {
+
+  const{createUser, updateUserProfile, user} = useAuth()
+
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm()
+
+  const onSubmit =  async (data) => {
+    console.log(data);
+    const {name, email, password} = data; 
+
+    console.log({email, name, password});
+
+    const image = data.image[0]
+    
+    
+ 
+
+    
+    
+    try {
+      // image uplode imageBB
+      const imageData = await imageUplode(image)
+      console.log(imageData); 
+
+      // User Registiton
+    const result =  await createUser(email, password)
+      console.log(result);
+
+      // User Registiton update User
+      await updateUserProfile(name, imageData?.data?.display_url)
+      console.log("account Creat Successful");
+
+      // save user data in database
+       const dbRespons = await saveUser(result?.user)
+       console.log(dbRespons);
+
+      //get Token
+      
+
+    } catch (error) {
+      console.log(error);
+    }
+
+
+
+  }
+
+
+
+
+
   return (
     <div className='flex justify-center items-center min-h-screen'>
       <div className='flex flex-col max-w-md p-6 rounded-md sm:p-10 bg-gray-100 text-gray-900'>
@@ -9,7 +73,7 @@ const SignUp = () => {
           <h1 className='my-3 text-4xl font-bold'>Sign Up</h1>
           <p className='text-sm text-gray-400'>Welcome to StayVista</p>
         </div>
-        <form
+        <form  onSubmit={handleSubmit(onSubmit)}
           noValidate=''
           action=''
           className='space-y-6 ng-untouched ng-pristine ng-valid'
@@ -23,6 +87,7 @@ const SignUp = () => {
                 type='text'
                 name='name'
                 id='name'
+                {...register("name")}
                 placeholder='Enter Your Name Here'
                 className='w-full px-3 py-2 border rounded-md border-gray-300 focus:outline-rose-500 bg-gray-200 text-gray-900'
                 data-temp-mail-org='0'
@@ -37,6 +102,7 @@ const SignUp = () => {
                 type='file'
                 id='image'
                 name='image'
+                {...register("image",[0])}
                 accept='image/*'
               />
             </div>
@@ -45,6 +111,7 @@ const SignUp = () => {
                 Email address
               </label>
               <input
+              {...register("email")}
                 type='email'
                 name='email'
                 id='email'
@@ -61,6 +128,7 @@ const SignUp = () => {
                 </label>
               </div>
               <input
+                {...register("password")}
                 type='password'
                 name='password'
                 autoComplete='new-password'

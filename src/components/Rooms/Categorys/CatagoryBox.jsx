@@ -10,7 +10,7 @@ const CatagoryBox = ({label, icon: Icon, description, selected }) => {
     const [params, setParams] = useSearchParams()
     const navigate = useNavigate()
     params.get('category')
-    console.log(params.get('category'));
+    // console.log(params.get('category'));
 
 
     const handleParams = () => {
