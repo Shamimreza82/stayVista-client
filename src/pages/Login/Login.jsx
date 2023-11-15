@@ -1,10 +1,73 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { FcGoogle } from 'react-icons/fc'
-
+import useAuth from '../../hooks/useAuth'
+import { useForm } from 'react-hook-form'
+import { getToken, saveUser } from '../../api/auth'
+import toast from 'react-hot-toast'
+import { GiReactor } from "react-icons/gi";
 
 
 
 const Login = () => {
+
+  const{signIn, loading, signInWithGoogle} = useAuth()
+  const navigate = useNavigate()
+
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm()
+
+  const onSubmit =  async (data) => {
+    console.log(data);
+    const {email, password} = data; 
+    console.log({email,password});
+
+    try {
+      // sign in user
+      const result = await signIn(email, password)
+      console.log("user Sing in successfully", result);
+
+
+      // save user data in database
+       const dbRespons = await saveUser(result?.user)
+       console.log(dbRespons);
+
+      //get Token
+      await getToken(result?.user.email)
+      toast.success("sign in successful")
+      navigate('/')
+
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.message)
+    }
+  }
+
+  const handleGoogleSingIn = async () => {
+    try {
+      const result = await signInWithGoogle()
+        console.log(result);
+        // save user data in database
+        const dbRespons = await saveUser(result?.user)
+        console.log(dbRespons);
+ 
+       //get Token
+       await getToken(result?.user.email)
+       toast.success("sign in successful")
+       navigate('/')
+
+
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+
+
 
 
   return (
@@ -16,7 +79,7 @@ const Login = () => {
             Sign in to access your account
           </p>
         </div>
-        <form
+        <form onSubmit={handleSubmit(onSubmit)}
           noValidate=''
           action=''
           className='space-y-6 ng-untouched ng-pristine ng-valid'
@@ -27,6 +90,7 @@ const Login = () => {
                 Email address
               </label>
               <input
+              {...register('email')}
                 type='email'
                 name='email'
                 id='email'
@@ -43,6 +107,7 @@ const Login = () => {
                 </label>
               </div>
               <input
+              {...register('password')}
                 type='password'
                 name='password'
                 autoComplete='current-password'
@@ -59,7 +124,7 @@ const Login = () => {
               type='submit'
               className='bg-rose-500 w-full rounded-md py-3 text-white'
             >
-              Continue
+              {loading ? <GiReactor className='animate-spin m-auto'></GiReactor> : " continue"}
             </button>
           </div>
         </form>
@@ -75,10 +140,10 @@ const Login = () => {
           </p>
           <div className='flex-1 h-px sm:w-16 dark:bg-gray-700'></div>
         </div>
-        <div className='flex justify-center items-center space-x-2 border m-3 p-2 border-gray-300 border-rounded cursor-pointer'>
+        <div onClick={handleGoogleSingIn} className='flex justify-center items-center space-x-2 border m-3 p-2 border-gray-300 border-rounded cursor-pointer'>
           <FcGoogle size={32} />
 
-          <p>Continue with Google</p>
+          {loading ? <p className='animate-ping'>Continue with Google</p> : "Continue with Google"}
         </div>
         <p className='px-6 text-sm text-center text-gray-400'>
           Don&apos;t have an account yet?{' '}

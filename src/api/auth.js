@@ -19,3 +19,12 @@ export const getToken = async (email) => {
     console.log("token resive from database", data);
     return data; 
 }
+
+
+// remove Clear tooken from database/ brsweer
+
+export const clearCookie = async () => {
+    const {data} = await axiosSecure.get('/logout')
+    console.log("token resive from database");
+    return data; 
+}
