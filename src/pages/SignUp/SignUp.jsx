@@ -1,9 +1,11 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { FcGoogle } from 'react-icons/fc'
 import { useForm } from 'react-hook-form'
 import { imageUplode } from '../../api/utils'
 import useAuth from '../../hooks/useAuth'
-import { saveUser } from '../../api/auth'
+import { getToken, saveUser } from '../../api/auth'
+import toast from 'react-hot-toast'
+import { GiReactor } from "react-icons/gi";
 
 
 
@@ -11,7 +13,8 @@ import { saveUser } from '../../api/auth'
 
 const SignUp = () => {
 
-  const{createUser, updateUserProfile, user} = useAuth()
+  const{createUser, updateUserProfile, user, loading, signInWithGoogle} = useAuth()
+  const navigate = useNavigate()
 
 
   const {
@@ -29,11 +32,7 @@ const SignUp = () => {
 
     const image = data.image[0]
     
-    
- 
-
-    
-    
+  
     try {
       // image uplode imageBB
       const imageData = await imageUplode(image)
@@ -52,14 +51,33 @@ const SignUp = () => {
        console.log(dbRespons);
 
       //get Token
-      
+      await getToken(result?.user.email)
+      toast.success("sign Up successful")
+      navigate('/')
+
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.message)
+    }
+  }
+
+  const handleGoogleSingIn = async () => {
+    try {
+      const result = await signInWithGoogle()
+        console.log(result);
+        // save user data in database
+        const dbRespons = await saveUser(result?.user)
+        console.log(dbRespons);
+ 
+       //get Token
+       await getToken(result?.user.email)
+       toast.success("sign Up successful")
+       navigate('/')
+
 
     } catch (error) {
       console.log(error);
     }
-
-
-
   }
 
 
@@ -141,11 +159,13 @@ const SignUp = () => {
           </div>
 
           <div>
+           
             <button
               type='submit'
               className='bg-rose-500 w-full rounded-md py-3 text-white'
             >
-              Continue
+
+             {loading ? <GiReactor className='animate-spin m-auto'></GiReactor> : "Continue"}
             </button>
           </div>
         </form>
@@ -156,7 +176,7 @@ const SignUp = () => {
           </p>
           <div className='flex-1 h-px sm:w-16 dark:bg-gray-700'></div>
         </div>
-        <div className='flex justify-center items-center space-x-2 border m-3 p-2 border-gray-300 border-rounded cursor-pointer'>
+        <div onClick={handleGoogleSingIn} className='flex justify-center items-center space-x-2 border m-3 p-2 border-gray-300 border-rounded cursor-pointer'>
           <FcGoogle size={32} />
 
           <p>Continue with Google</p>
