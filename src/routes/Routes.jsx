@@ -5,7 +5,7 @@ import ErrorPage from "../pages/ErrorPage";
 import Login from "../pages/Login/Login";
 import SignUp from "../pages/SignUp/SignUp";
 import RoomDetiles from "../pages/RoomDetiles/RoomDetiles";
-import PrivateRoute from "./PrivateRoute";
+import { singleRoom } from "../api/utils";
 
 export const router = createBrowserRouter([
   {
@@ -19,9 +19,9 @@ export const router = createBrowserRouter([
       },
       {
         path: '/room/:id', 
-        element: <PrivateRoute>
-              <RoomDetiles></RoomDetiles>
-              </PrivateRoute>
+        element: <RoomDetiles></RoomDetiles>, 
+        // loader: ({params}) => fetch(`http://localhost:5000/room/${params.id}`)
+        loader: ({params}) => singleRoom(params.id)
       }
     ],
   },

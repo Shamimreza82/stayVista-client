@@ -1,4 +1,5 @@
 import axios from "axios";
+import axiosSecure from ".";
 
 
 
@@ -11,6 +12,16 @@ import axios from "axios";
 
     return data; 
  }
+
+
+ /// single room gate
+ export const singleRoom = async (id) => {
+  const result = await axiosSecure.get(`/room/${id}`)
+  return result; 
+ }
+
+
+
 
 
  
